@@ -1,0 +1,3153 @@
+src/main contains java & webapp
+
+java/com/quiz contains 4 sub dirs. - controller, dao, model, util
+
+util has DBConnection 
+
+package com.quiz.util;
+import java.sql.*;
+
+public class DBConnection {
+    private static final String URL = "jdbc:mysql://localhost:3306/QuizDB";
+    private static final String USER = "root";
+    private static final String PASSWORD = "root@39";
+
+    public static Connection getConnection() {
+        Connection conn = null;
+        try {
+            Class.forName("com.mysql.jdbc.Driver"); // must succeed
+            conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        } catch (Exception e) {
+            e.printStackTrace(); // print here helps debugging
+        }
+        return conn;
+    }
+}
+
+
+model has 3 files Admin, Question, Quiz
+
+package com.quiz.model;
+
+public class Admin {
+	
+	private int id;
+	
+	private String username;
+	
+	private String password;
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}	
+
+	public Admin(int id, String username, String password) {
+		this.id = id;
+		this.username = username;
+		this.password = password;
+	}
+
+	public Admin() {
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public String toString() {
+		return "Admin [id=" + id + ", username=" + username + ", password=" + password +"]";
+	}
+	
+	
+	
+}
+
+
+package com.quiz.model;
+
+public class Question {
+    private String category;// assuming you'll associate questions with quizzes
+    private String questionText;
+    private String optionA;
+    private String optionB;
+    private String optionC;
+    private String optionD;
+    private String correctOption;
+
+    // Constructors
+    public Question() {}
+
+    public Question(String category, String questionText, String optionA, String optionB, String optionC, String optionD, String correctOption) {
+    	this.category = category;
+    	this.questionText = questionText;
+        this.optionA = optionA;
+        this.optionB = optionB;
+        this.optionC = optionC;
+        this.optionD = optionD;
+        this.correctOption = correctOption;
+    }
+
+    // Getters and Setters
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+    
+    
+    public String getQuestionText() { return questionText; }
+    public void setQuestionText(String questionText) { this.questionText = questionText; }
+
+
+
+    public String getOptionA() { return optionA; }
+    public void setOptionA(String optionA) { this.optionA = optionA; }
+
+    public String getOptionB() { return optionB; }
+    public void setOptionB(String optionB) { this.optionB = optionB; }
+
+    public String getOptionC() { return optionC; }
+    public void setOptionC(String optionC) { this.optionC = optionC; }
+
+    public String getOptionD() { return optionD; }
+    public void setOptionD(String optionD) { this.optionD = optionD; }
+
+    public String getCorrectOption() { return correctOption; }
+    public void setCorrectOption(String correctOption) { this.correctOption = correctOption; }
+}
+
+
+package com.quiz.model;
+
+import java.util.List;
+
+public class Quiz {
+    private int id;
+    private String quizName;
+    private String category; // 🆕 Added category field
+    private List<Question> questions; // each quiz has multiple questions
+
+    // --- Constructors ---
+    public Quiz() {}
+
+    public Quiz(int id, String quizName) {
+        this.id = id;
+        this.quizName = quizName;
+    }
+
+    public Quiz(int id, String quizName, String category) {
+        this.id = id;
+        this.quizName = quizName;
+        this.category = category;
+    }
+
+    public Quiz(int id, String quizName, String category, List<Question> questions) {
+        this.id = id;
+        this.quizName = quizName;
+        this.category = category;
+        this.questions = questions;
+    }
+
+    // --- Getters and Setters ---
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getQuizName() {
+        return quizName;
+    }
+
+    public void setQuizName(String quizName) {
+        this.quizName = quizName;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public List<Question> getQuestions() {
+        return questions;
+    }
+
+    public void setQuestions(List<Question> questions) {
+        this.questions = questions;
+    }
+
+    // --- Optional: toString() for easy debugging ---
+    @Override
+    public String toString() {
+        return "Quiz{" +
+                "id=" + id +
+                ", quizName='" + quizName + '\'' +
+                ", category='" + category + '\'' +
+                ", questions=" + (questions != null ? questions.size() : 0) +
+                '}';
+    }
+}
+
+
+dao has AdminDao, QuestionDAO, QuizDAO
+
+package com.quiz.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+import com.quiz.model.Admin;
+import com.quiz.util.DBConnection;
+
+public class AdminDao{
+    public Admin validateAdmin(String username, String password) {
+        Admin admin = null;
+        try (Connection con = DBConnection.getConnection()) {
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM admin WHERE username=?");
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                String dbPass = rs.getString("password");
+                if (password.equals(dbPass)) { // simple equals() check
+                    admin = new Admin(rs.getInt("id"), username, dbPass);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return admin;
+    }
+}
+
+
+package com.quiz.dao;
+
+import com.quiz.model.Question;
+import com.quiz.util.DBConnection;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
+public class QuestionDAO {
+	
+
+    public boolean addQuestion(Question question) {
+        boolean status = false;
+
+        try (Connection con = DBConnection.getConnection()) {
+            String sql = "INSERT INTO question (category, questionText, optionA , optionB, optionC, optionD, correctOption) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, question.getCategory());
+            ps.setString(2, question.getQuestionText());
+            ps.setString(3, question.getOptionA());
+            ps.setString(4, question.getOptionB());
+            ps.setString(5, question.getOptionC());
+            ps.setString(6, question.getOptionD());
+            ps.setString(7, question.getCorrectOption());
+
+            int inserted = ps.executeUpdate();
+            status = inserted > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return status;
+    }
+    public List<Question> getAllQuestions() {
+        List<Question> questions = new ArrayList<>();
+
+        try (Connection con = DBConnection.getConnection()) {
+            String sql = "SELECT * FROM question";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Question q = new Question();
+                q.setCategory(rs.getString("category"));
+                q.setQuestionText(rs.getString("questionText"));
+                q.setOptionA(rs.getString("optionA"));
+                q.setOptionB(rs.getString("optionB"));
+                q.setOptionC(rs.getString("optionC"));
+                q.setOptionD(rs.getString("optionD"));
+                q.setCorrectOption(rs.getString("correctOption"));
+                questions.add(q);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return questions;
+    }
+
+}
+
+
+package com.quiz.dao;
+
+import com.quiz.model.Quiz;
+import com.quiz.model.Question;
+import com.quiz.util.DBConnection;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class QuizDAO {
+
+    // ➕ Add a new quiz to the database
+    public boolean addQuiz(Quiz quiz) {
+        boolean isAdded = false;
+
+        String sql = "INSERT INTO quiz (name, category) VALUES (?, ?)";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, quiz.getQuizName());
+            ps.setString(2, quiz.getCategory());
+
+            int rows = ps.executeUpdate();
+            if (rows > 0) {
+                isAdded = true;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return isAdded;
+    }
+
+    // 🔍 Fetch quiz details and all its questions
+    public Quiz getQuizById(int quizId) {
+        Quiz quiz = null;
+
+        try (Connection conn = DBConnection.getConnection()) {
+
+            // Fetch quiz name and category
+            String quizQuery = "SELECT * FROM quiz WHERE id = ?";
+            PreparedStatement psQuiz = conn.prepareStatement(quizQuery);
+            psQuiz.setInt(1, quizId);
+            ResultSet rsQuiz = psQuiz.executeQuery();
+
+            if (rsQuiz.next()) {
+                quiz = new Quiz();
+                quiz.setId(rsQuiz.getInt("id"));
+                quiz.setQuizName(rsQuiz.getString("name"));
+                quiz.setCategory(rsQuiz.getString("category"));
+            }
+
+            if (quiz != null) {
+                // Fetch associated questions
+                String questionQuery =
+                        "SELECT q.Id, q.category, q.questionText, q.optionA, q.optionB, q.optionC, q.optionD, q.correctOption " +
+                        "FROM question q " +
+                        "INNER JOIN quiz_question qq ON q.id = qq.question_id " +
+                        "WHERE qq.quiz_id = ?";
+                PreparedStatement psQues = conn.prepareStatement(questionQuery);
+                psQues.setInt(1, quizId);
+                ResultSet rsQues = psQues.executeQuery();
+
+                List<Question> questions = new ArrayList<>();
+                while (rsQues.next()) {
+                    Question q = new Question();
+//                    q.setId(rsQues.getInt("id"));
+                    q.setCategory(rsQues.getString("category"));
+                    q.setQuestionText(rsQues.getString("questionText"));
+                    q.setOptionA(rsQues.getString("optionA"));
+                    q.setOptionB(rsQues.getString("optionB"));
+                    q.setOptionC(rsQues.getString("optionC"));
+                    q.setOptionD(rsQues.getString("optionD"));
+                    q.setCorrectOption(rsQues.getString("correctOption"));
+                    questions.add(q);
+                }
+
+                quiz.setQuestions(questions);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return quiz;
+    }
+    
+ // Link all questions of the given category to the quiz
+    public void linkQuestionsByCategory(int quizId, String category) {
+        String selectSql = "SELECT Id FROM question WHERE category = ?";
+        String insertSql = "INSERT INTO quiz_question (quiz_id, question_id) VALUES (?, ?)";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement psSelect = conn.prepareStatement(selectSql);
+             PreparedStatement psInsert = conn.prepareStatement(insertSql)) {
+
+            psSelect.setString(1, category);
+            ResultSet rs = psSelect.executeQuery();
+
+            while (rs.next()) {
+                int questionId = rs.getInt("Id");
+                psInsert.setInt(1, quizId);
+                psInsert.setInt(2, questionId);
+                psInsert.executeUpdate();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int getLastInsertedQuizId() {
+        int id = -1;
+        String sql = "SELECT id FROM quiz ORDER BY id DESC LIMIT 1";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                id = rs.getInt("id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return id;
+    }
+
+    public Question getQuestionById(int questionId) {
+        Question q = null;
+        String sql = "SELECT * FROM question WHERE Id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, questionId);
+            ResultSet rs = ps.executeQuery();
+
+//            if (rs.next()) {
+//                q = new Question();
+//                q.setId(rs.getInt("id"));
+//                q.setQuestion_text(rs.getString("question_text"));
+//                q.setOption_a(rs.getString("option_a"));
+//                q.setOption_b(rs.getString("option_b"));
+//                q.setOption_c(rs.getString("option_c"));
+//                q.setOption_d(rs.getString("option_d"));
+//                q.setCorrect_option(rs.getString("correct_option"));
+//                q.setCategory(rs.getString("category"));
+//            }
+            
+            if (rs.next()) {
+                q = new Question();
+//                q.setId(rs.getInt("id"));
+                q.setCategory(rs.getString("category"));
+                q.setQuestionText(rs.getString("questionText"));
+                q.setOptionA(rs.getString("optionA"));
+                q.setOptionB(rs.getString("optionB"));
+                q.setOptionC(rs.getString("optionC"));
+                q.setOptionD(rs.getString("optionD"));
+                q.setCorrectOption(rs.getString("correctOption"));
+                
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return q;
+    }
+
+
+ // Fetch quizzes with limit and offset for pagination
+    public List<Quiz> getQuizzesWithQuestions(int offset, int limit) {
+        List<Quiz> quizzes = new ArrayList<>();
+        String sql = "SELECT * FROM quiz ORDER BY id DESC LIMIT ? OFFSET ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, limit);
+            ps.setInt(2, offset);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Quiz quiz = new Quiz();
+                quiz.setId(rs.getInt("id"));
+                quiz.setQuizName(rs.getString("name"));
+                quiz.setCategory(rs.getString("category"));
+
+                // Fetch questions for this quiz
+                quiz.setQuestions(getQuizById(quiz.getId()).getQuestions());
+
+                quizzes.add(quiz);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return quizzes;
+    }
+
+    // Get total quiz count
+    public int getTotalQuizCount() {
+        int count = 0;
+        String sql = "SELECT COUNT(*) FROM quiz";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
+
+    public List<String> getAllCategories() {
+        List<String> categories = new ArrayList<>();
+        String sql = "SELECT DISTINCT category FROM question"; // or your category table
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                categories.add(rs.getString("category"));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return categories;
+    }
+
+}
+
+
+controller has 8 Servlets
+
+package com.quiz.controller;
+
+import com.quiz.dao.QuestionDAO;
+import com.quiz.model.Question;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+import java.io.IOException;
+
+@WebServlet("/AddQuestionServlet")
+public class AddQuestionServlet extends HttpServlet {
+
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    	String category = req.getParameter("category");
+    	String questionText = req.getParameter("questionText");
+        String optionA = req.getParameter("optionA");
+        String optionB = req.getParameter("optionB");
+        String optionC = req.getParameter("optionC");
+        String optionD = req.getParameter("optionD");
+        String correctOption = req.getParameter("correctOption");
+
+        // For now, hardcoding quizId. You can later pass it from the form or session.
+        int quizId = 1;
+
+        Question question = new Question(category, questionText, optionA, optionB, optionC, optionD, correctOption);
+        QuestionDAO dao = new QuestionDAO();
+
+        boolean success = dao.addQuestion(question);
+
+        if (success) {
+            resp.sendRedirect("admin/AddQuestion.jsp?success=Question+added+successfully");
+        } else {
+            resp.sendRedirect("admin/AddQuestion.jsp?error=Failed+to+add+question");
+        }
+    }
+}
+
+
+package com.quiz.controller;
+
+import com.quiz.dao.AdminDao;
+import com.quiz.dao.AdminDao;
+import com.quiz.model.Admin;
+import jakarta.servlet.*;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+import java.io.IOException;
+
+@WebServlet("/admin/AdminLoginServlet")
+//@WebServlet("/admin-login")
+public class AdminLoginServlet extends HttpServlet {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        String username = req.getParameter("username");
+        String password = req.getParameter("password");
+
+        AdminDao dao = new AdminDao();
+        Admin admin = dao.validateAdmin(username, password);
+
+        if (admin != null) {
+            HttpSession session = req.getSession();
+            session.setAttribute("admin", admin);
+            resp.sendRedirect(req.getContextPath() + "/admin/AdminDashboard.jsp");
+        } else {
+            req.setAttribute("error", "Invalid credentials!");
+//            RequestDispatcher rd = req.getRequestDispatcher("Admin/AdminLogin.jsp");
+//            rd.forward(req, resp);
+            resp.sendRedirect(req.getContextPath()+"/admin/AdminLogin.jsp");
+        }
+    }
+}
+
+
+package com.quiz.controller;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.quiz.util.DBConnection;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+@WebServlet("/attemptQuiz")
+public class AttemptQuizServlet extends HttpServlet {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, ServletException {
+        int quizId = Integer.parseInt(request.getParameter("quizId"));
+        try (Connection conn = DBConnection.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement(
+                "SELECT q.* FROM question q JOIN quiz_question qq ON q.id=qq.question_id WHERE qq.quiz_id=?");
+            ps.setInt(1, quizId);
+            ResultSet rs = ps.executeQuery();
+
+            List<Map<String,Object>> questions = new ArrayList<>();
+            while (rs.next()) {
+                Map<String,Object> q = new HashMap<>();
+                q.put("id", rs.getInt("id"));
+                q.put("question_text", rs.getString("questionText"));
+                q.put("option_a", rs.getString("optiona"));
+                q.put("option_b", rs.getString("optionb"));
+                q.put("option_c", rs.getString("optionc"));
+                q.put("option_d", rs.getString("optiond"));
+                q.put("correct_option", rs.getString("correctOption"));
+                questions.add(q);
+            }
+
+            HttpSession session = request.getSession();
+            session.setAttribute("quizId", quizId);
+            session.setAttribute("questions", questions);
+
+            response.sendRedirect(request.getContextPath() +"/User/QuizAttempt.jsp");
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
+    }
+}
+
+
+package com.quiz.controller;
+
+import com.quiz.dao.QuizDAO;
+import com.quiz.model.Quiz;
+
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import java.io.IOException;
+import jakarta.servlet.annotation.WebServlet;
+
+@WebServlet("/CreateQuizServlet")
+public class CreateQuizServlet extends HttpServlet {
+    
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        request.setCharacterEncoding("UTF-8");
+
+        String title = request.getParameter("title");
+        String category = request.getParameter("category");
+
+        if (title == null || title.trim().isEmpty() ||
+            category == null || category.trim().isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/admin/createQuiz.jsp?error=InvalidInput");
+            return;
+        }
+
+        Quiz quiz = new Quiz();
+        quiz.setQuizName(title);
+        quiz.setCategory(category);
+
+        QuizDAO dao = new QuizDAO();
+        boolean success = dao.addQuiz(quiz);
+
+        if (success) {
+            // Get the generated quiz ID
+            int quizId = dao.getLastInsertedQuizId(); // We will create this method in DAO
+
+            // Link questions automatically by category
+            dao.linkQuestionsByCategory(quizId, category);
+
+            // Redirect to quiz list or quiz detail page
+            response.sendRedirect(request.getContextPath() + "/admin/quizDetail.jsp?quizId=" + quizId);
+        } else {
+            response.sendRedirect(request.getContextPath() + "/admin/createQuiz.jsp?error=DatabaseError");
+        }
+
+    }
+}
+
+
+package com.quiz.controller;
+
+import java.io.IOException;
+
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+@WebServlet("/LogoutServlet")
+public class LogoutServlet extends HttpServlet {
+    protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        HttpSession session = req.getSession(false);
+        if(session != null) session.invalidate();
+        res.sendRedirect(req.getContextPath() +"/admin/AdminLogin.jsp?msg=Logged out successfully.");
+    }
+}
+
+
+package com.quiz.controller;
+
+import com.quiz.dao.QuestionDAO;
+import com.quiz.model.Question;
+
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+
+@WebServlet("/QuestionListServlet")
+public class QuestionListServlet extends HttpServlet {
+    
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        
+        // 1. Get the data from the DAO
+        QuestionDAO dao = new QuestionDAO();
+        List<Question> questionList = dao.getAllQuestions();
+        
+        // 2. Set the data as an attribute for the JSP
+        request.setAttribute("questionList", questionList);
+        
+        // 3. Forward the request to the JSP view
+        RequestDispatcher dispatcher = request.getRequestDispatcher("admin/QuestionList.jsp");
+        dispatcher.forward(request, response);
+    }
+}
+
+
+package com.quiz.controller;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.quiz.util.DBConnection;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+@WebServlet("/submitQuiz")
+public class SubmitQuizServlet extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, ServletException {
+
+        HttpSession session = request.getSession(false);
+        String username = (String) session.getAttribute("username");
+        int quizId = (int) session.getAttribute("quizId");
+        List<Map<String,Object>> questions = (List<Map<String,Object>>) session.getAttribute("questions");
+
+        int correct = 0;
+        List<Map<String,String>> review = new ArrayList<>();
+
+        for (Map<String,Object> q : questions) {
+            String qid = "q" + q.get("id");
+            String chosen = request.getParameter(qid);
+            String correctOpt = (String) q.get("correct_option");
+
+            Map<String,String> item = new HashMap<>();
+            item.put("question", (String) q.get("question_text"));
+            item.put("chosen", chosen != null ? chosen : "Not Answered");
+            item.put("correct", correctOpt);
+
+            if (chosen != null && chosen.equalsIgnoreCase(correctOpt))
+                correct++;
+
+            review.add(item);
+        }
+
+        int userId = 0;
+        try (Connection conn = DBConnection.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement("SELECT id FROM user WHERE username=?");
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) userId = rs.getInt("id");
+
+            PreparedStatement insert = conn.prepareStatement(
+                "INSERT INTO result(user_id, quiz_id, score) VALUES(?,?,?)");
+            insert.setInt(1, userId);
+            insert.setInt(2, quizId);
+            insert.setInt(3, correct);
+            insert.executeUpdate();
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
+
+        request.setAttribute("score", correct);
+        request.setAttribute("review", review);
+        request.getRequestDispatcher("User/Result.jsp").forward(request, response);
+    }
+}
+
+
+package com.quiz.controller;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+import com.quiz.util.DBConnection;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+@WebServlet("/user")
+public class UserLoginServlet extends HttpServlet {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2621352181729361033L;
+	
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        String action = request.getParameter("action"); // "Register" or "Login"
+
+        try (Connection conn = DBConnection.getConnection()) {
+            if (action.equals("Register")) {
+                // Check if user exists
+                PreparedStatement checkStmt = conn.prepareStatement("SELECT * FROM user WHERE username=?");
+                checkStmt.setString(1, username);
+                ResultSet rs = checkStmt.executeQuery();
+
+                if (rs.next()) {
+                    // already exists → redirect to login page
+                    response.sendRedirect("/User/User.jsp?msg=User already exists, please login.");
+                } else {
+                    // register user
+                    PreparedStatement insertStmt = conn.prepareStatement("INSERT INTO user(username,password) VALUES(?,?)");
+                    insertStmt.setString(1, username);
+                    insertStmt.setString(2, password);
+                    insertStmt.executeUpdate();
+
+                    response.sendRedirect(request.getContextPath() + "/user/User.jsp?msg=Registered successfully! Please login now.");
+                }
+
+            } else if (action.equals("Login")) {
+                PreparedStatement stmt = conn.prepareStatement("SELECT * FROM user WHERE username=? AND password=?");
+                stmt.setString(1, username);
+                stmt.setString(2, password);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()) {
+                    // login success
+                    HttpSession session = request.getSession();
+                    session.setAttribute("username", username);
+                    response.sendRedirect(request.getContextPath() +"/User/UserDashboard.jsp");
+                } else {
+                    response.sendRedirect(request.getContextPath() +"/User/User.jsp?msg=Invalid username or password");
+                }
+            }
+
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
+    }
+}
+
+
+webapp has two sub directories - admin & user apart from WEB-INF
+
+user has 6 jsp files
+
+<%@ page import="java.sql.*, com.quiz.util.*" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Leaderboard</title>
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #fbc2eb 100%);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+h2 {
+    text-align: center;
+    margin: 2rem 0;
+    color: #2c3e50;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+table {
+    width: 80%;
+    margin: 2rem auto;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+table th, table td {
+    padding: 0.8rem;
+    text-align: center;
+    font-size: 1rem;
+    transition: background 0.3s, color 0.3s;
+}
+
+table th {
+    background: linear-gradient(90deg, #ff416c, #ff4b2b);
+    color: white;
+    font-weight: bold;
+}
+
+table tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+table tr:hover {
+    background: #ffe066;
+    color: #2c3e50;
+    transform: scale(1.02);
+    transition: 0.3s;
+}
+
+a.action-btn {
+    display: inline-block;
+    margin: 1rem auto;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(90deg, #36d1dc, #5b86e5);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: 0.3s;
+}
+
+a.action-btn:hover {
+    background: linear-gradient(90deg, #ff6a00, #ee0979);
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+</style>
+</head>
+<body>
+
+<h2>Leaderboard</h2>
+
+<table>
+<tr>
+    <th>Rank</th>
+    <th>Username</th>
+    <th>Quiz</th>
+    <th>Score</th>
+</tr>
+<%
+    try (Connection conn = DBConnection.getConnection()) {
+        PreparedStatement ps = conn.prepareStatement(
+            "SELECT u.username, q.name, r.score FROM result r " +
+            "JOIN user u ON r.user_id=u.id JOIN quiz q ON r.quiz_id=q.id " +
+            "ORDER BY r.score DESC"
+        );
+        ResultSet rs = ps.executeQuery();
+        int rank = 1;
+        while (rs.next()) {
+%>
+<tr>
+    <td><%= rank++ %></td>
+    <td><%= rs.getString("username") %></td>
+    <td><%= rs.getString("name") %></td>
+    <td><%= rs.getInt("score") %></td>
+</tr>
+<% 
+        } 
+    } catch(Exception e){ 
+        out.println("<tr><td colspan='4' style='color:red;text-align:center;'>Error: "+e.getMessage()+"</td></tr>"); 
+    } 
+%>
+</table>
+
+<div style="text-align:center;">
+    <a class="action-btn" href="UserDashboard.jsp">Back to Dashboard</a>
+</div>
+
+</body>
+</html>
+
+
+<%@ page import="java.util.*" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Attempt Quiz</title>
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa; /* light minimal background */
+    margin: 0;
+    padding: 0;
+}
+
+/* Quiz container */
+h2 {
+    text-align: center;
+    margin: 2rem 0;
+    color: #343a40;
+}
+
+form {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 700px;
+    margin: 2rem auto;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+/* Question Card */
+.question-card {
+    background-color: #f1f3f5;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.question-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.question-card p {
+    margin: 0 0 0.8rem 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #495057;
+}
+
+/* Options */
+.question-card input[type=radio] {
+    margin-right: 0.6rem;
+    cursor: pointer;
+}
+
+.option-label {
+    display: block;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    transition: background 0.2s, color 0.2s;
+    cursor: pointer;
+}
+
+.question-card input[type=radio]:checked + .option-label {
+    background-color: #36b9cc;
+    color: white;
+}
+
+.option-label:hover {
+    background-color: #e9ecef;
+}
+
+/* Submit button */
+input[type=submit] {
+    display: block;
+    width: 100%;
+    padding: 0.7rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #36b9cc;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: background 0.3s, transform 0.2s;
+}
+
+input[type=submit]:hover {
+    background-color: #2a9dab;
+    transform: scale(1.03);
+}
+</style>
+</head>
+<body>
+<jsp:include page="UserHeader.jsp" />
+
+<%
+    List<Map<String,Object>> questions = (List<Map<String,Object>>) session.getAttribute("questions");
+    if (questions == null) { response.sendRedirect("User/UserDashboard.jsp"); return; }
+%>
+
+<h2>Attempt Quiz</h2>
+<form action="<%=request.getContextPath() %>/submitQuiz" method="post">
+<%
+    int qNo = 1;
+    for (Map<String,Object> q : questions) {
+%>
+<div class="question-card">
+    <p><b><%= qNo++ %>. <%= q.get("question_text") %></b></p>
+    <input type="radio" id="q<%= q.get("id") %>A" name="q<%= q.get("id") %>" value="A">
+    <label class="option-label" for="q<%= q.get("id") %>A"><%= q.get("option_a") %></label>
+
+    <input type="radio" id="q<%= q.get("id") %>B" name="q<%= q.get("id") %>" value="B">
+    <label class="option-label" for="q<%= q.get("id") %>B"><%= q.get("option_b") %></label>
+
+    <input type="radio" id="q<%= q.get("id") %>C" name="q<%= q.get("id") %>" value="C">
+    <label class="option-label" for="q<%= q.get("id") %>C"><%= q.get("option_c") %></label>
+
+    <input type="radio" id="q<%= q.get("id") %>D" name="q<%= q.get("id") %>" value="D">
+    <label class="option-label" for="q<%= q.get("id") %>D"><%= q.get("option_d") %></label>
+</div>
+<% } %>
+<input type="submit" value="Submit Quiz">
+</form>
+</body>
+</html>
+
+
+<%@ page import="java.util.*" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Result</title>
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa; /* light background */
+    margin: 0;
+    padding: 0;
+}
+
+/* Header */
+h2 {
+    text-align: center;
+    color: #343a40;
+    margin-top: 2rem;
+}
+
+/* Table styling */
+table {
+    width: 80%;
+    margin: 2rem auto;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+table th, table td {
+    padding: 0.8rem;
+    text-align: center;
+    font-size: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+table th {
+    background-color: #36b9cc; /* blue header */
+    color: #ffffff;
+    font-weight: bold;
+}
+
+/* Correct/Wrong row colors */
+.correct { 
+    background-color: #d4edda; /* light green */
+    color: #155724;
+}
+.wrong { 
+    background-color: #f8d7da; /* light red */
+    color: #721c24;
+}
+
+/* Buttons */
+a.action-btn {
+    display:inline-block;
+    margin: 1rem 0.5rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    background-color: #36b9cc; /* button color */
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.3s, transform 0.2s;
+}
+
+a.action-btn:hover { 
+    background-color: #2a9dab; 
+    transform: scale(1.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    table {
+        width: 95%;
+    }
+    a.action-btn {
+        width: 45%;
+        text-align: center;
+    }
+}
+</style>
+</head>
+<body>
+<jsp:include page="UserHeader.jsp" />
+
+<h2>Your Score: <%= request.getAttribute("score") %></h2>
+
+<table>
+<tr><th>Question</th><th>Your Answer</th><th>Correct Answer</th></tr>
+<%
+    List<Map<String,String>> review = (List<Map<String,String>>) request.getAttribute("review");
+    for (Map<String,String> r : review) {
+        String chosen = r.get("chosen");
+        String correct = r.get("correct");
+%>
+<tr class="<%= chosen.equalsIgnoreCase(correct) ? "correct" : "wrong" %>">
+    <td><%= r.get("question") %></td>
+    <td><%= chosen %></td>
+    <td><%= correct %></td>
+</tr>
+<% } %>
+</table>
+
+<div style="text-align:center;">
+    <a class="action-btn" href="User/Leaderboard.jsp">View Leaderboard</a>
+    <a class="action-btn" href="User/UserDashboard.jsp">Back to Dashboard</a>
+</div>
+
+</body>
+</html>
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>User Portal</title>
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to right, #6a11cb, #2575fc);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+h2 {
+    color: white;
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.welcome-card {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 450px;
+    width: 90%;
+    margin-top: 2rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    text-align: center;
+}
+
+.welcome-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+form label {
+    font-weight: bold;
+    margin-top: 0.5rem;
+}
+
+form input[type=text], form input[type=password] {
+    width: 100%;
+    padding: 0.6rem;
+    margin: 0.3rem 0 1rem 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+form input[type=text]:focus, form input[type=password]:focus {
+    border-color: #2575fc;
+    outline: none;
+}
+
+form input[type=submit] {
+    background-color: #2575fc;
+    color: white;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+form input[type=submit]:hover {
+    background-color: #6a11cb;
+}
+
+.message {
+    text-align: center;
+    margin-top: 1rem;
+    color: #2c3e50;
+    font-weight: bold;
+}
+</style>
+</head>
+<body>
+
+<h2>User Portal</h2>
+
+<div class="welcome-card">
+    <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="User Avatar">
+    <h3>Welcome!</h3>
+    <p>Please login or register to continue.</p>
+
+    <form action="<%= request.getContextPath() %>/user" method="post">
+        <label>Username:</label>
+        <input type="text" name="username" placeholder="Enter your username" required>
+
+        <label>Password:</label>
+        <input type="password" name="password" placeholder="Enter your password" required>
+
+        <input type="submit" name="action" value="Register">
+        <input type="submit" name="action" value="Login">
+    </form>
+
+    <% 
+    String message = request.getParameter("msg");
+    if(message != null) {
+    %>
+        <div class="message"><%= message %></div>
+    <% } %>
+</div>
+
+</body>
+</html>
+
+<%@ page import="java.sql.* , com.quiz.util.*" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #fbc2eb 100%);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+h2 {
+    text-align: center;
+    margin: 2rem 0;
+    color: #2c3e50;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+table {
+    width: 80%;
+    margin: 2rem auto;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+table th, table td {
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    text-align: center;
+    font-size: 1rem;
+    transition: background 0.3s, color 0.3s;
+}
+
+table th {
+    background: linear-gradient(90deg, #ff416c, #ff4b2b);
+    color: white;
+    font-weight: bold;
+}
+
+table tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+table tr:hover {
+    background: #ffe066;
+    color: #2c3e50;
+}
+
+.action-btn {
+    padding: 0.4rem 0.8rem;
+    border: none;
+    background: linear-gradient(90deg, #36d1dc, #5b86e5);
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: bold;
+    transition: transform 0.2s, background 0.3s;
+}
+
+.action-btn:hover {
+    background: linear-gradient(90deg, #ff6a00, #ee0979);
+    transform: scale(1.05);
+}
+
+</style>
+</head>
+<body>
+<jsp:include page="UserHeader.jsp" />
+
+<h2>Welcome, <%= session.getAttribute("username") %></h2>
+
+<table>
+<tr>
+    <th>ID</th>
+    <th>Quiz Name</th>
+    <th>Action</th>
+</tr>
+<%
+    try (Connection conn = DBConnection.getConnection()) {
+        PreparedStatement ps = conn.prepareStatement("SELECT * FROM quiz");
+        ResultSet rs = ps.executeQuery();
+        while(rs.next()) {
+%>
+<tr>
+    <td><%= rs.getInt("id") %></td>
+    <td><%= rs.getString("name") %></td>
+    <td>
+        <a class="action-btn" href="<%=request.getContextPath() %>/attemptQuiz?quizId=<%= rs.getInt("id") %>">Attempt Quiz</a>
+    </td>
+</tr>
+<% 
+        } 
+    } catch(Exception e){ 
+        out.println("<tr><td colspan='3' style='color:red;text-align:center;'>Error: "+e.getMessage()+"</td></tr>"); 
+    } 
+%>
+</table>
+
+</body>
+</html>
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<div class="navbar">
+    <div class="brand">Quiz Portal</div>
+    <div class="burger" id="burger">&#9776;</div>
+    <ul class="nav-links" id="nav-links">
+        <li><a href="<%= request.getContextPath() %>/User/UserDashboard.jsp">Dashboard</a></li>
+        <li><a href="<%= request.getContextPath() %>/User/Leaderboard.jsp">Leaderboard</a></li>
+        <li><a href="<%= request.getContextPath() %>/User/User.jsp">Logout</a></li>
+    </ul>
+</div>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #f8f9fa; /* light minimal background */
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff; /* clean white navbar */
+    color: #495057;
+    padding: 0.5rem 1rem;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    border-bottom: 1px solid #dee2e6;
+}
+
+.navbar .brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #343a40;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links li {
+    margin-left: 1rem;
+}
+
+.nav-links li a {
+    color: #343a40; /* dark text */
+    text-decoration: none;
+    font-weight: bold;
+    padding: 0.4rem 0.8rem;
+    border: 2px solid #dc3545; /* red border */
+    border-radius: 8px;
+    transition: background 0.3s, color 0.3s, transform 0.2s;
+}
+
+.nav-links li a:hover {
+    background-color: #dc3545; /* red background on hover */
+    color: #ffffff; /* white text on hover */
+    transform: scale(1.05);
+}
+
+/* Burger menu */
+.burger {
+    display: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #495057;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        background-color: #ffffff;
+        position: absolute;
+        top: 60px;
+        right: 0;
+        width: 200px;
+        padding: 1rem;
+        border-radius: 0 0 0 8px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    .nav-links li {
+        margin: 0.5rem 0;
+    }
+    .burger {
+        display: block;
+    }
+    .nav-links.active {
+        display: flex;
+    }
+}
+</style>
+
+<script>
+const burger = document.getElementById("burger");
+const navLinks = document.getElementById("nav-links");
+burger.addEventListener("click", () => {
+    navLinks.classList.toggle("active");
+});
+</script>
+
+
+admin has 8 jsp files - 
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<title>Add New Question</title>
+
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #f0f7ff, #dff3ff);
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Header */
+  header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: #2196f3;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 10px 25px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1001;
+  }
+
+  header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  /* Burger Menu */
+  .burger {
+    width: 25px;
+    height: 18px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-right: 15px;
+  }
+
+  .burger div {
+    height: 3px;
+    background-color: white;
+    border-radius: 2px;
+  }
+
+  /* Sidebar */
+  nav.sidebar {
+    position: fixed;
+    top: 60px;
+    left: -240px;
+    width: 220px;
+    height: calc(100vh - 60px);
+    background-color: #ffffff;
+    border-right: 1px solid #cfd8dc;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+    transition: left 0.3s ease;
+    z-index: 1000;
+  }
+
+  nav.sidebar.open {
+    left: 0;
+  }
+
+  nav.sidebar button {
+    background: none;
+    border: none;
+    color: #333;
+    padding: 14px 20px;
+    text-align: left;
+    font-size: 15px;
+    width: 100%;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  nav.sidebar button:hover {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+  }
+
+  /* Main Content */
+  main.content {
+    padding: 100px 20px;
+    max-width: 550px;
+    margin: auto;
+  }
+
+  form {
+    background: linear-gradient(145deg, #ffffff, #f6fbff);
+    padding: 28px 32px;
+    border-radius: 14px;
+    box-shadow: 0 6px 12px rgba(33, 150, 243, 0.1);
+    border-top: 5px solid #2196f3;
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {opacity: 0; transform: translateY(15px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+
+  label {
+    font-weight: 600;
+    color: #1a237e;
+    margin-top: 12px;
+    display: block;
+  }
+
+  input[type="text"],
+  textarea,
+  select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #b0bec5;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: #f9fbff;
+    transition: all 0.2s;
+  }
+
+  input[type="text"]:focus,
+  textarea:focus,
+  select:focus {
+    border-color: #2196f3;
+    box-shadow: 0 0 6px rgba(33,150,243,0.4);
+    outline: none;
+  }
+
+  input[type="submit"] {
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    margin-top: 22px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    transition: 0.3s;
+  }
+
+  input[type="submit"]:hover {
+    background-color: #1976d2;
+    transform: scale(1.03);
+  }
+
+  a.back-link {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    color: #1976d2;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  a.back-link:hover {
+    text-decoration: underline;
+  }
+
+  p.message {
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 15px;
+  }
+
+  p.message.success {
+    color: #2e7d32;
+  }
+
+  p.message.error {
+    color: #c62828;
+  }
+
+  @media (max-width: 600px) {
+    main.content {
+      padding: 90px 10px;
+    }
+
+    form {
+      padding: 22px;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+  <header>
+    <div class="burger" id="burger">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <h2>🧠 Add New Quiz Question</h2>
+  </header>
+
+  <nav class="sidebar" id="sidebar">
+    <button onclick="window.location.href='AdminDashboard.jsp'">🏠 Dashboard</button>
+    <button onclick="window.location.href='AdminLogin.jsp'">🚪 Logout</button>
+    <button onclick="window.location.href='/OnlineQuiz/QuestionListServlet'">📋 Question List</button>
+  </nav>
+
+  <main class="content">
+    <% 
+      String success = request.getParameter("success");
+      String error = request.getParameter("error");
+      if (success != null) { 
+    %>
+      <p class="message success"><%= success %></p>
+    <% } else if (error != null) { %>
+      <p class="message error"><%= error %></p>
+    <% } %>
+
+    <form action="/OnlineQuiz/AddQuestionServlet" method="post">
+      <label>Category:</label>
+      <select name="category" required>
+        <option value="">-- Select Category --</option>
+        <option value="Java">Java</option> 
+        <option value="Python">Python</option>
+        <option value="Web Development">Web Development</option>
+        <option value="Databases">Databases</option>
+        <option value="Networking">Networking</option>
+      </select>
+
+      <label>Question Text:</label>
+      <textarea name="questionText" rows="3" required></textarea>
+
+      <label>Option A:</label>
+      <input type="text" name="optionA" required/>
+
+      <label>Option B:</label>
+      <input type="text" name="optionB" required/>
+
+      <label>Option C:</label>
+      <input type="text" name="optionC" required/>
+
+      <label>Option D:</label>
+      <input type="text" name="optionD" required/>
+
+      <label>Correct Option:</label>
+      <select name="correctOption" required>
+        <option value="">-- Select Correct Option --</option>
+        <option value="A">Option A</option>
+        <option value="B">Option B</option>
+        <option value="C">Option C</option>
+        <option value="D">Option D</option>
+      </select>
+
+      <input type="submit" value="✅ Add Question"/>
+    </form>
+
+    <a class="back-link" href="<%=request.getContextPath()%>/admin/AdminDashboard.jsp">← Back to Dashboard</a>
+  </main>
+
+  <script>
+    const burger = document.getElementById('burger');
+    const sidebar = document.getElementById('sidebar');
+
+    burger.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+    });
+  </script>
+
+</body>
+</html>
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.quiz.model.Admin" %>
+<%
+    Admin admin = (Admin) session.getAttribute("admin");
+    if (admin == null) {
+        response.sendRedirect("AdminLogin.jsp");
+        return;
+    }
+%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <style>
+        /* ---------- GLOBAL ---------- */
+        body {
+            margin: 0;
+            font-family: "Poppins", sans-serif;
+            background: linear-gradient(135deg, #d0e8ff, #ffe0f0); /* Light blue & pink mix */
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        h2, h1 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        /* ---------- HEADER ---------- */
+        .header {
+            background: linear-gradient(90deg, #6c63ff, #8b5cf6);
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        }
+
+        .menu-icon {
+            font-size: 28px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .menu-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .logout {
+            background: #ff6b6b;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .logout:hover {
+            background: #e04e4e;
+            transform: scale(1.05);
+        }
+
+        /* ---------- SIDE MENU ---------- */
+        .menu {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            background: linear-gradient(180deg, #f4f6ff, #dbe4ff);
+            border-right: 1px solid #ccc;
+            overflow-x: hidden;
+            transition: 0.4s;
+            padding-top: 70px;
+        }
+
+        .menu a {
+            padding: 12px 25px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #333;
+            display: block;
+            transition: 0.3s;
+            border-radius: 8px;
+        }
+
+        .menu a:hover {
+            background-color: #c7d8ff;
+            color: #000;
+            transform: translateX(5px);
+        }
+
+        .menu .closebtn {
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            font-size: 35px;
+            color: #555;
+        }
+
+        .sub-menu {
+            display: none;
+            background: linear-gradient(90deg, #e2e8ff, #f1f3ff);
+            padding-left: 20px;
+            border-left: 3px solid #6c63ff;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+
+        .sub-menu a {
+            font-size: 16px;
+            color: #555;
+        }
+
+        .sub-menu a:hover {
+            background-color: #dbe4ff;
+            color: #111;
+        }
+
+        /* ---------- DASHBOARD CONTENT ---------- */
+        .content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            margin-top: 80px;
+        }
+
+        .welcome {
+            font-size: 28px;
+            font-weight: 600;
+            color: #4b4bff;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-cards {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #ffffff, #f0f4ff);
+            width: 230px;
+            height: 140px;
+            border-radius: 15px;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-weight: 500;
+            font-size: 18px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-8px) scale(1.04);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+            background: linear-gradient(135deg, #dbe4ff, #c7d8ff);
+        }
+
+        .card i {
+            font-size: 35px;
+            margin-bottom: 10px;
+            color: #6c63ff;
+        }
+
+        /* ---------- FOOTER ---------- */
+        .footer {
+            position: absolute;
+            bottom: 15px;
+            width: 100%;
+            text-align: center;
+            color: #555;
+            font-size: 13px;
+        }
+
+        .footer span {
+            color: #6c63ff;
+            font-weight: 500;
+        }
+
+        /* ---------- MEDIA ---------- */
+        @media (max-width: 768px) {
+            .dashboard-cards {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+    </style>
+
+    <!-- Font Awesome for icons -->
+    <script src="https://kit.fontawesome.com/6d77c6a53a.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+        <span class="menu-icon" onclick="openMenu()">☰</span>
+        <h1>Admin Dashboard</h1>
+        <a class="logout" href="<%=request.getContextPath()%>/LogoutServlet">Logout</a>
+    </div>
+
+    <!-- SIDE MENU -->
+    <div id="sideMenu" class="menu">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeMenu()">&times;</a>
+
+        <div class="menu-item">
+            <a href="javascript:void(0)" onclick="toggleSubMenu('quizSub')">
+                <i class="fas fa-question-circle"></i> Quiz Manager ▾
+            </a>
+            <div id="quizSub" class="sub-menu">
+                <a href="<%=request.getContextPath()%>/admin/QuizList.jsp">📜 Quiz List</a>
+                <a href="<%=request.getContextPath()%>/admin/createQuiz.jsp">➕ Create New Quiz</a>
+            </div>
+        </div>
+
+        <div class="menu-item">
+            <a href="javascript:void(0)" onclick="toggleSubMenu('questionSub')">
+                <i class="fas fa-pen"></i> Question Manager ▾
+            </a>
+            <div id="questionSub" class="sub-menu">
+                <a href="AddQuestion.jsp">➕ Add New Question(s)</a>
+                <a href="<%=request.getContextPath()%>/QuestionListServlet">📄 Question List</a>
+            </div>
+        </div>
+
+        <a href="leaderboard.jsp"><i class="fas fa-trophy"></i> Leaderboard</a>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="content">
+        <p class="welcome">Welcome, <strong><%= admin.getUsername() %></strong> 👋</p>
+
+        <div class="dashboard-cards">
+            <div class="card" onclick="window.location.href='<%=request.getContextPath()%>/admin/createQuiz.jsp'">
+                <i class="fas fa-plus-circle"></i>
+                Create Quiz
+            </div>
+            <div class="card" onclick="window.location.href='<%=request.getContextPath()%>/admin/QuizList.jsp'">
+                <i class="fas fa-list"></i>
+                View All Quizzes
+            </div>
+            <div class="card" onclick="window.location.href='AddQuestion.jsp'">
+                <i class="fas fa-question"></i>
+                Add Questions
+            </div>
+            <div class="card" onclick="window.location.href='<%=request.getContextPath()%>/QuestionListServlet'">
+                <i class="fas fa-database"></i>
+                Question Bank
+            </div>
+            <div class="card" onclick="window.location.href='leaderboard.jsp'">
+                <i class="fas fa-trophy"></i>
+                Leaderboard
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+         <span>Quiz App</span> | Admin Dashboard
+    </div>
+
+    <!-- JS -->
+    <script>
+        function toggleSubMenu(id) {
+            var subMenu = document.getElementById(id);
+            subMenu.style.display = subMenu.style.display === "block" ? "none" : "block";
+        }
+
+        function openMenu() {
+            document.getElementById("sideMenu").style.width = "250px";
+        }
+
+        function closeMenu() {
+            document.getElementById("sideMenu").style.width = "0";
+        }
+    </script>
+
+</body>
+</html>
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz App | Admin Login</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Poppins", sans-serif;
+            background: linear-gradient(135deg, #007bff, #6c63ff);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .left-section {
+            flex: 1;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            box-shadow: 5px 0 20px rgba(0, 0, 0, 0.1);
+            border-top-right-radius: 50px;
+            border-bottom-right-radius: 50px;
+        }
+
+        .logo {
+            font-size: 36px;
+            font-weight: 800;
+            color: #007bff;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .quiz-icon {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #007bff, #6c63ff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 48px;
+            font-weight: 700;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .right-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            color: white;
+        }
+
+        .welcome-text {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        form {
+            width: 80%;
+            max-width: 350px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #444;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 15px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #6c63ff;
+            box-shadow: 0 0 5px rgba(108, 99, 255, 0.5);
+        }
+
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, #6c63ff, #007bff);
+            color: white;
+            font-size: 16px;
+            margin-top: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #007bff, #6c63ff);
+            transform: scale(1.03);
+        }
+
+        .error {
+            color: #ff3b3b;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .footer-text {
+            margin-top: 20px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .footer-text span {
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Left Section -->
+    <div class="left-section">
+        <div class="quiz-icon">Q?</div>
+        <div class="logo">QuizMaster Admin</div>
+        <div class="tagline">Empower Your Quiz Management</div>
+        <img class="pug-img" src="https://images.pexels.com/photos/3184326/pexels-photo-3184326.jpeg?auto=compress&cs=tinysrgb&w=600" 
+             alt="Quiz Illustration" style="border-radius:15px; width:80%; margin-top:20px;">
+    </div>
+
+    <!-- Right Section -->
+    <div class="right-section">
+        <div class="welcome-text">Welcome Back, Admin</div>
+
+        <% 
+            String error = (String) request.getAttribute("error");
+            if(error != null) {
+        %>
+            <div class="error"><%= error %></div>
+        <% } %>
+
+        <form action="<%=request.getContextPath()%>/Admin/AdminLoginServlet" method="post">
+            <label for="username">Username</label>
+            <input type="text" id="email" name="username" placeholder="Enter your username" required>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+
+            <button type="submit">Login</button>
+        </form>
+
+        <div class="footer-text">Project3---<span></span></div>
+    </div>
+
+</body>
+</html>
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ page import="java.util.List, com.quiz.dao.QuizDAO" %>
+<%
+    QuizDAO dao = new QuizDAO();
+    List<String> categories = dao.getAllCategories();
+%>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Create New Quiz</title>
+
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* 🌈 Light Blue + Pink Gradient Background */
+        background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 50%, #fbc2eb 100%);
+        background-attachment: fixed;
+    }
+
+    .container {
+        background: rgba(255, 255, 255, 0.9);
+        padding: 40px 50px;
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        width: 380px;
+        text-align: center;
+        backdrop-filter: blur(8px);
+        animation: fadeIn 0.6s ease-in-out;
+        position: relative;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+        color: #0d47a1;
+        margin-bottom: 20px;
+        font-weight: 700;
+    }
+
+    .quiz-icon {
+        font-size: 42px;
+        color: #1565c0;
+        margin-bottom: 10px;
+        text-shadow: 0 2px 6px rgba(33,150,243,0.4);
+    }
+
+    label {
+        display: block;
+        margin-top: 12px;
+        font-weight: 600;
+        text-align: left;
+        color: #1a237e;
+    }
+
+    input[type="text"], select {
+        width: 100%;
+        padding: 10px;
+        margin-top: 6px;
+        border: 1px solid #b0bec5;
+        border-radius: 8px;
+        font-size: 14px;
+        background-color: rgba(255,255,255,0.95);
+        transition: all 0.3s;
+    }
+
+    input[type="text"]:focus, select:focus {
+        border-color: #42a5f5;
+        box-shadow: 0 0 8px rgba(66,165,245,0.3);
+        outline: none;
+    }
+
+    select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+        background-repeat: no-repeat;
+        background-position-x: 98%;
+        background-position-y: 10px;
+    }
+
+    button {
+        margin-top: 25px;
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #f06292, #42a5f5);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s ease;
+    }
+
+    button:hover {
+        background: linear-gradient(135deg, #f48fb1, #64b5f6);
+        transform: scale(1.03);
+        box-shadow: 0 4px 10px rgba(66,165,245,0.4);
+    }
+
+    @media (max-width: 600px) {
+        .container {
+            width: 85%;
+            padding: 25px 30px;
+        }
+    }
+</style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="quiz-icon">🧠</div>
+        <h2>Create New Quiz</h2>
+
+        <form action="../CreateQuizServlet" method="post">
+            <label for="title">Quiz Title</label>
+            <input type="text" id="title" name="title" placeholder="Enter quiz title" required>
+
+            <label for="category">Category</label>
+            <select id="category" name="category" required>
+                <option value="" disabled selected>--- Select Category ---</option>
+                <%
+                    for(String cat : categories) {
+                %>
+                    <option value="<%=cat%>"><%=cat%></option>
+                <%
+                    }
+                %>
+            </select>
+
+            <button type="submit">Create Quiz</button>
+        </form>
+    </div>
+</body>
+</html>
+
+
+<%@ page import="java.sql.*, com.quiz.util.*" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Leaderboard</title>
+
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: linear-gradient(135deg, #a1c4fd, #fbc2eb); /* Light Blue + Pink Gradient */
+    }
+
+    h2 {
+        margin-top: 40px;
+        color: #1e3c72;
+        font-size: 2rem;
+        text-align: center;
+    }
+
+    table {
+        width: 90%;
+        max-width: 900px;
+        margin: 2rem auto;
+        border-collapse: collapse;
+        background-color: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    th, td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+        color: #2c3e50;
+    }
+
+    th {
+        background-color: #42a5f5; /* Header color */
+        color: white;
+    }
+
+    tr:hover {
+        background-color: #f0f4ff;
+    }
+
+    .action-btn {
+        display: inline-block;
+        margin: 2rem 0;
+        padding: 0.5rem 1rem;
+        background-color: #42a5f5;
+        color: white;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .action-btn:hover {
+        background-color: #64b5f6;
+    }
+
+    @media (max-width: 768px) {
+        th, td {
+            padding: 8px 10px;
+            font-size: 0.9rem;
+        }
+        h2 {
+            font-size: 1.6rem;
+        }
+    }
+</style>
+</head>
+
+<body>
+    <h2>Leaderboard</h2>
+
+    <table>
+        <tr>
+            <th>Rank</th>
+            <th>Username</th>
+            <th>Quiz</th>
+            <th>Score</th>
+        </tr>
+        <%
+            try (Connection conn = DBConnection.getConnection()) {
+                PreparedStatement ps = conn.prepareStatement(
+                    "SELECT u.username, q.name, r.score FROM result r " +
+                    "JOIN user u ON r.user_id=u.id JOIN quiz q ON r.quiz_id=q.id " +
+                    "ORDER BY r.score DESC"
+                );
+                ResultSet rs = ps.executeQuery();
+                int rank = 1;
+                while (rs.next()) {
+        %>
+        <tr>
+            <td><%= rank++ %></td>
+            <td><%= rs.getString("username") %></td>
+            <td><%= rs.getString("name") %></td>
+            <td><%= rs.getInt("score") %></td>
+        </tr>
+        <% } } catch(Exception e){ out.println("<tr><td colspan='4'>Error: "+e.getMessage()+"</td></tr>"); } %>
+    </table>
+
+    <a class="action-btn" href="AdminDashboard.jsp">Back to Dashboard</a>
+</body>
+</html>
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.util.List, com.quiz.model.Question" %>
+
+<%
+    com.quiz.model.Admin admin = (com.quiz.model.Admin) session.getAttribute("admin");
+    if (admin == null) {
+        response.sendRedirect(request.getContextPath() + "/admin/AdminLogin.jsp");
+        return;
+    }
+    List<Question> questionList = (List<Question>) request.getAttribute("questionList");
+%>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Question List - Admin</title>
+<style>
+    /* ---------- BODY ---------- */
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        margin: 0;
+        background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+        min-height: 100vh;
+        color: #333;
+    }
+
+    /* ---------- HEADER ---------- */
+    .header {
+        background: #6c63ff;
+        color: white;
+        padding: 15px 25px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+    .header h2 {
+        margin: 0;
+        font-weight: 600;
+    }
+    .menu-icon {
+        font-size: 28px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    .menu-icon:hover { transform: scale(1.1); }
+    .logout {
+        background: #ff6b6b;
+        color: white;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    .logout:hover { background: #e04e4e; transform: scale(1.05); }
+
+    /* ---------- SIDE MENU ---------- */
+    .menu {
+        height: 100%;
+        width: 0;
+        position: fixed;
+        z-index: 200;
+        top: 0;
+        left: 0;
+        background: #3f3d56;
+        overflow-x: hidden;
+        transition: 0.4s;
+        padding-top: 60px;
+        color: #fff;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+    }
+    .menu a {
+        padding: 12px 25px;
+        display: block;
+        font-size: 18px;
+        color: #ddd;
+        text-decoration: none;
+        border-radius: 6px;
+        transition: 0.3s;
+    }
+    .menu a:hover { background: #6c63ff; color: white; transform: translateX(5px); }
+    .menu .closebtn { position: absolute; top: 0; right: 25px; font-size: 36px; margin-left: 50px; cursor: pointer; }
+    .sub-menu {
+        display: none;
+        padding-left: 20px;
+        margin-top: 5px;
+    }
+    .sub-menu a {
+        font-size: 16px;
+        color: #ccc;
+    }
+    .sub-menu a:hover { color: #fff; background: #5a54d1; }
+
+    /* ---------- MAIN CONTENT ---------- */
+    .content {
+        padding: 20px;
+        margin-left: 20px;
+        transition: margin-left 0.5s;
+    }
+    .welcome {
+        font-size: 1.3em;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    /* ---------- TABLE STYLES ---------- */
+    .question-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .question-table th, .question-table td {
+        padding: 12px;
+        text-align: left;
+    }
+    .question-table th {
+        background: #6c63ff;
+        color: white;
+        font-weight: 600;
+    }
+    .question-table tr:nth-child(even) { background-color: #f3f3f3; }
+    .question-table tr:nth-child(odd) { background-color: #ffffff; }
+    .question-table tr:hover { background: #dce8ff; transform: scale(1.01); transition: 0.2s; }
+
+    /* ---------- MEDIA QUERIES ---------- */
+    @media(max-width: 768px) {
+        .content { margin-left: 0; padding: 15px; }
+        .menu { width: 200px; }
+        .question-table th, .question-table td { font-size: 14px; padding: 10px; }
+    }
+
+</style>
+</head>
+<body>
+
+<div class="header">
+    <span class="menu-icon" onclick="openMenu()">☰</span>
+    <h2>Admin Dashboard</h2>
+    <a class="logout" href="<%=request.getContextPath()%>/LogoutServlet">Logout</a>
+</div>
+
+<div id="sideMenu" class="menu">
+    <span class="closebtn" onclick="closeMenu()">&times;</span>
+
+    <div class="menu-item">
+        <a href="javascript:void(0)" onclick="toggleSubMenu('quizSub')">Quiz Manager ▾</a>
+        <div id="quizSub" class="sub-menu">
+            <a href="<%=request.getContextPath()%>/admin/CreateQuiz.jsp">Create New Quiz</a>
+            <a href="<%=request.getContextPath()%>/admin/QuizList.jsp">Quiz List</a>
+        </div>
+    </div>
+
+    <div class="menu-item">
+        <a href="javascript:void(0)" onclick="toggleSubMenu('questionSub')">Question Manager ▾</a>
+        <div id="questionSub" class="sub-menu" style="display: block;">
+            <a href="<%=request.getContextPath()%>/admin/AddQuestion.jsp">Add New Question(s)</a>
+            <a href="<%=request.getContextPath()%>/QuestionListServlet">Question List</a>
+        </div>
+    </div>
+
+    <a href="<%=request.getContextPath()%>/admin/leaderboard.jsp">Leaderboard</a>
+</div>
+
+<div class="content">
+    <p class="welcome">Welcome, <strong><%= admin.getUsername() %></strong> 👋</p>
+    
+    <h2>All Questions</h2>
+    
+    <table class="question-table">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Question Text</th>
+                <th>Option A</th>
+                <th>Option B</th>
+                <th>Option C</th>
+                <th>Option D</th>
+                <th>Correct Option</th>
+            </tr>
+        </thead>
+        <tbody>
+            <%
+                if (questionList != null && !questionList.isEmpty()) {
+                    for (Question q : questionList) {
+            %>
+                        <tr>
+                            <td><%= q.getCategory() %></td>
+                            <td><%= q.getQuestionText() %></td>
+                            <td><%= q.getOptionA() %></td>
+                            <td><%= q.getOptionB() %></td>
+                            <td><%= q.getOptionC() %></td>
+                            <td><%= q.getOptionD() %></td>
+                            <td><strong><%= q.getCorrectOption() %></strong></td>
+                        </tr>
+            <%
+                    }
+                } else {
+            %>
+                    <tr>
+                        <td colspan="7" style="text-align: center;">No questions found.</td>
+                    </tr>
+            <%
+                }
+            %>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function toggleSubMenu(id) {
+        var subMenu = document.getElementById(id);
+        subMenu.style.display = subMenu.style.display === "block" ? "none" : "block";
+    }
+
+    function openMenu() { document.getElementById("sideMenu").style.width = "250px"; }
+    function closeMenu() { document.getElementById("sideMenu").style.width = "0"; }
+</script>
+
+</body>
+</html>
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Success</title>
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .container {
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.85);
+        padding: 40px 50px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        animation: fadeIn 0.8s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .text {
+        font-size: 48px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-right: 30px;
+    }
+
+    .image img {
+        width: 120px;
+        height: auto;
+    }
+
+    @media (max-width: 600px) {
+        .container {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .text {
+            margin-right: 0;
+            margin-bottom: 20px;
+            font-size: 36px;
+        }
+
+        .image img {
+            width: 100px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="text">🎉 Created Successfully!</div>
+    <div class="image">
+        <img src="https://cdn-icons-png.flaticon.com/512/2278/2278992.png" alt="You Did It">
+    </div>
+</div>
+
+</body>
+</html>
+
+
+<%@ page import="java.util.List, java.util.Collections, com.quiz.model.Quiz, com.quiz.model.Question, com.quiz.dao.QuizDAO" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
+<%
+    // --- Pagination Setup ---
+    int currentPage = 1; // default page
+    int recordsPerPage = 5; // quizzes per page
+    int questionsPerPage = 3; // questions per quiz per page
+
+    if(request.getParameter("currentPage") != null) {
+        currentPage = Integer.parseInt(request.getParameter("currentPage"));
+    }
+
+    int offset = (currentPage - 1) * recordsPerPage;
+
+    QuizDAO dao = new QuizDAO();
+    int totalRecords = dao.getTotalQuizCount();
+    int totalPages = (int)Math.ceil(totalRecords * 1.0 / recordsPerPage);
+
+    // Fetch quizzes from DAO
+    List<Quiz> quizzes = dao.getQuizzesWithQuestions(offset, recordsPerPage);
+
+    // Sort quizzes so newest first (highest ID first)
+    Collections.sort(quizzes, (q1, q2) -> q2.getId() - q1.getId());
+
+    int prevPage = currentPage - 1;
+    int nextPage = currentPage + 1;
+%>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>All Quizzes</title>
+<style>
+    body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: linear-gradient(135deg,#a1c4fd,#c2e9fb); }
+    h2 { text-align:center; color:#2d3436; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; border-radius:10px; overflow:hidden; box-shadow:0 6px 18px rgba(0,0,0,0.15);}
+    th, td { border: 1px solid #b2bec3; padding: 10px; text-align:left; }
+    th { background: #0984e3; color: #fff; }
+    tr:nth-child(even) { background: #dfe6e9; }
+    tr:hover { background: #74b9ff; color:#fff; transition:0.3s; }
+
+    /* Inner Question Table */
+    .question-table { width: 100%; margin-top: 5px; border-collapse: collapse; }
+    .question-table th, .question-table td { border: 1px solid #b2bec3; padding: 5px; font-size:13px; }
+    .question-table th { background: #00b894; color: #fff; }
+    .question-table tr:nth-child(even) { background: #dff9f0; }
+    .question-table tr:hover { background: #00cec9; color:#fff; }
+
+    /* Pager */
+    .pager, .questionPager { text-align:center; margin-top:15px; }
+    .pager a, .questionPager a { margin: 0 5px; text-decoration:none; color:#0984e3; font-weight:bold; }
+    .pager span, .questionPager span { margin:0 5px; font-weight:bold; color:#d63031; }
+
+    /* Card-like effect for quizzes */
+    td > table { border-radius:8px; overflow:hidden; box-shadow:0 3px 10px rgba(0,0,0,0.1);}
+</style>
+</head>
+<body>
+
+<h2>All Quizzes</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Quiz Name</th>
+            <th>Category</th>
+            <th>Questions</th>
+        </tr>
+    </thead>
+    <tbody>
+    <%
+        int count = offset + 1;
+        for(Quiz quiz : quizzes) {
+            List<Question> allQuestions = quiz.getQuestions();
+            int totalQuestions = allQuestions.size();
+
+            // Inner pagination for questions
+            int questionPage = 1;
+            String param = request.getParameter("qPage_" + quiz.getId());
+            if(param != null) questionPage = Integer.parseInt(param);
+
+            int questionOffset = (questionPage - 1) * questionsPerPage;
+            int questionEnd = Math.min(questionOffset + questionsPerPage, totalQuestions);
+    %>
+        <tr>
+            <td><%= count++ %></td>
+            <td><%= quiz.getQuizName() %></td>
+            <td><%= quiz.getCategory() %></td>
+            <td>
+                <table class="question-table">
+                    <tr>
+                        <th>#</th>
+                        <th>Question</th>
+                        <th>A</th>
+                        <th>B</th>
+                        <th>C</th>
+                        <th>D</th>
+                        <th>Correct</th>
+                    </tr>
+                    <%
+                        int qCount = questionOffset + 1;
+                        for(int i=questionOffset; i<questionEnd; i++) {
+                            Question q = allQuestions.get(i);
+                    %>
+                    <tr>
+                        <td><%= qCount++ %></td>
+                        <td><%= q.getQuestionText() %></td>
+                        <td><%= q.getOptionA() %></td>
+                        <td><%= q.getOptionB() %></td>
+                        <td><%= q.getOptionC() %></td>
+                        <td><%= q.getOptionD() %></td>
+                        <td><%= q.getCorrectOption() %></td>
+                    </tr>
+                    <% } %>
+                </table>
+
+                <!-- Inner pager for questions -->
+                <div class="questionPager">
+                    <%
+                        int totalQuestionPages = (int)Math.ceil((double)totalQuestions / questionsPerPage);
+                        for(int qp=1; qp<=totalQuestionPages; qp++){
+                            if(qp==questionPage){
+                    %>
+                        <span><%= qp %></span>
+                    <% } else { %>
+                        <a href="QuizList.jsp?currentPage=<%=currentPage%>&qPage_<%=quiz.getId()%>=<%=qp%>"><%= qp %></a>
+                    <% } } %>
+                </div>
+            </td>
+        </tr>
+    <% } %>
+    </tbody>
+</table>
+
+<!-- Outer pager for quizzes -->
+<div class="pager">
+    <% if(prevPage>=1){ %>
+        <a href="QuizList.jsp?currentPage=<%=prevPage%>">« Previous</a>
+    <% } else { %>
+        <span>« Previous</span>
+    <% } %>
+
+    <% for(int i=1;i<=totalPages;i++){
+        if(i==currentPage){ %>
+            <span><%=i%></span>
+        <% } else { %>
+            <a href="QuizList.jsp?currentPage=<%=i%>"><%=i%></a>
+    <% } } %>
+
+    <% if(nextPage<=totalPages){ %>
+        <a href="QuizList.jsp?currentPage=<%=nextPage%>">Next »</a>
+    <% } else { %>
+        <span>Next »</span>
+    <% } %>
+</div>
+
+</body>
+</html>

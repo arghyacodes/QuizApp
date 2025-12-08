@@ -1,4 +1,4 @@
-package com.quizapp.util;
+package com.quiz.util;
 import java.sql.*;
 
 public class DBConnection {
