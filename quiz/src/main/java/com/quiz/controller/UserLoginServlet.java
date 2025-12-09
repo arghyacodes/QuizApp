@@ -39,7 +39,7 @@ public class UserLoginServlet extends HttpServlet {
 
                 if (rs.next()) {
                     // already exists → redirect to login page
-                    response.sendRedirect("/User/User.jsp?msg=User already exists, please login.");
+                    response.sendRedirect("/user/User.jsp?msg=User already exists, please login.");
                 } else {
                     // register user
                     PreparedStatement insertStmt = conn.prepareStatement("INSERT INTO user(username,password) VALUES(?,?)");
@@ -60,9 +60,9 @@ public class UserLoginServlet extends HttpServlet {
                     // login success
                     HttpSession session = request.getSession();
                     session.setAttribute("username", username);
-                    response.sendRedirect(request.getContextPath() +"/User/UserDashboard.jsp");
+                    response.sendRedirect(request.getContextPath() +"/user/UserDashboard.jsp");
                 } else {
-                    response.sendRedirect(request.getContextPath() +"/User/User.jsp?msg=Invalid username or password");
+                    response.sendRedirect(request.getContextPath() +"/user/User.jsp?msg=Invalid username or password");
                 }
             }
 
