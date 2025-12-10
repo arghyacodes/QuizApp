@@ -8,7 +8,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 
-@WebServlet("/admin/AdminLoginServlet")
+@WebServlet({"/admin/AdminLoginServlet", "/admin-login"})
 //@WebServlet("/admin-login")
 public class AdminLoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
