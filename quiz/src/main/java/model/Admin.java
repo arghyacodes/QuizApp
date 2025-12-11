@@ -1,4 +1,4 @@
-package com.quiz.model;
+package model;
 
 public class Admin {
 	

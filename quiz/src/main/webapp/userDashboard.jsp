@@ -73,7 +73,7 @@ table tr:hover {
 </style>
 </head>
 <body>
-<jsp:include page="UserHeader.jsp" />
+<jsp:include page="userHeader.jsp" />
 
 <h2>Welcome, <%= session.getAttribute("username") %></h2>
 

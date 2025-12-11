@@ -1,4 +1,4 @@
-<%@ page import="java.util.List, java.util.Collections, com.quiz.model.Quiz, com.quiz.model.Question, com.quiz.dao.QuizDAO" %>
+<%@ page import="java.util.List, java.util.Collections, model.Quiz, model.Question, dao.QuizDAO" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%
     // --- Pagination Setup ---

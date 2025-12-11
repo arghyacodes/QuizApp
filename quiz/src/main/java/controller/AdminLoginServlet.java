@@ -1,12 +1,15 @@
-package com.quiz.controller;
+package controller;
 
-import com.quiz.dao.AdminDao;
-import com.quiz.dao.AdminDao;
-import com.quiz.model.Admin;
-import jakarta.servlet.*;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
 import java.io.IOException;
+
+import dao.AdminDao;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import model.Admin;
 
 @WebServlet({"/admin/AdminLoginServlet", "/admin-login"})
 //@WebServlet("/admin-login")

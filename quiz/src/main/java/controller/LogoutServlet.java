@@ -1,4 +1,4 @@
-package com.quiz.controller;
+package controller;
 
 import java.io.IOException;
 

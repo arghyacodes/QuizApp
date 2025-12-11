@@ -1,4 +1,4 @@
-package com.quiz.controller;
+package controller;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -9,14 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.quiz.util.DBConnection;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import util.DBConnection;
 
 @WebServlet("/submitQuiz")
 public class SubmitQuizServlet extends HttpServlet {
@@ -66,6 +65,6 @@ public class SubmitQuizServlet extends HttpServlet {
 
         request.setAttribute("score", correct);
         request.setAttribute("review", review);
-        request.getRequestDispatcher("User/Result.jsp").forward(request, response);
+        request.getRequestDispatcher("user/Result.jsp").forward(request, response);
     }
 }

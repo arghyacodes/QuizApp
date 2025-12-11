@@ -1,4 +1,4 @@
-package com.quiz.model;
+package model;
 
 public class Question {
     private String category;// assuming you'll associate questions with quizzes

@@ -1,7 +1,7 @@
-package com.quiz.controller;
+package controller;
 
-import com.quiz.dao.QuizDAO;
-import com.quiz.model.Quiz;
+import dao.QuizDAO;
+import model.Quiz;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
@@ -10,7 +10,8 @@ import jakarta.servlet.annotation.WebServlet;
 
 @WebServlet("/CreateQuizServlet")
 public class CreateQuizServlet extends HttpServlet {
-    
+	 boolean success;
+	  int quizId;
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
@@ -30,14 +31,31 @@ public class CreateQuizServlet extends HttpServlet {
         quiz.setCategory(category);
 
         QuizDAO dao = new QuizDAO();
-        boolean success = dao.addQuiz(quiz);
+       
+		try {
+			success = dao.addQuiz(quiz);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
         if (success) {
             // Get the generated quiz ID
-            int quizId = dao.getLastInsertedQuizId(); // We will create this method in DAO
+          
+			try {
+				quizId = dao.getLastInsertedQuizId();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} // We will create this method in DAO
 
             // Link questions automatically by category
-            dao.linkQuestionsByCategory(quizId, category);
+            try {
+				dao.linkQuestionsByCategory(quizId, category);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
             // Redirect to quiz list or quiz detail page
             response.sendRedirect(request.getContextPath() + "/admin/quizDetail.jsp?quizId=" + quizId);

@@ -1,17 +1,20 @@
-package com.quiz.dao;
+package dao;
 
-import com.quiz.model.Quiz;
-import com.quiz.model.Question;
-import com.quiz.util.DBConnection;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import model.Question;
+import model.Quiz;
+import util.DBConnection;
 
 public class QuizDAO {
 
     // ➕ Add a new quiz to the database
-    public boolean addQuiz(Quiz quiz) {
+    public boolean addQuiz(Quiz quiz) throws Exception {
         boolean isAdded = false;
 
         String sql = "INSERT INTO quiz (name, category) VALUES (?, ?)";
@@ -89,7 +92,7 @@ public class QuizDAO {
     }
     
  // Link all questions of the given category to the quiz
-    public void linkQuestionsByCategory(int quizId, String category) {
+    public void linkQuestionsByCategory(int quizId, String category) throws Exception {
         String selectSql = "SELECT Id FROM question WHERE category = ?";
         String insertSql = "INSERT INTO quiz_question (quiz_id, question_id) VALUES (?, ?)";
 
@@ -112,7 +115,7 @@ public class QuizDAO {
         }
     }
 
-    public int getLastInsertedQuizId() {
+    public int getLastInsertedQuizId() throws Exception {
         int id = -1;
         String sql = "SELECT id FROM quiz ORDER BY id DESC LIMIT 1";
         try (Connection conn = DBConnection.getConnection();
@@ -127,7 +130,7 @@ public class QuizDAO {
         return id;
     }
 
-    public Question getQuestionById(int questionId) {
+    public Question getQuestionById(int questionId) throws Exception {
         Question q = null;
         String sql = "SELECT * FROM question WHERE Id = ?";
 
@@ -171,7 +174,7 @@ public class QuizDAO {
 
 
  // Fetch quizzes with limit and offset for pagination
-    public List<Quiz> getQuizzesWithQuestions(int offset, int limit) {
+    public List<Quiz> getQuizzesWithQuestions(int offset, int limit) throws Exception {
         List<Quiz> quizzes = new ArrayList<>();
         String sql = "SELECT * FROM quiz ORDER BY id DESC LIMIT ? OFFSET ?";
 
@@ -201,7 +204,7 @@ public class QuizDAO {
     }
 
     // Get total quiz count
-    public int getTotalQuizCount() {
+    public int getTotalQuizCount() throws Exception {
         int count = 0;
         String sql = "SELECT COUNT(*) FROM quiz";
 
@@ -220,7 +223,7 @@ public class QuizDAO {
     }
 
 
-    public List<String> getAllCategories() {
+    public List<String> getAllCategories() throws Exception {
         List<String> categories = new ArrayList<>();
         String sql = "SELECT DISTINCT category FROM question"; // or your category table
 

@@ -1,11 +1,11 @@
-package com.quiz.dao;
+package dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-import com.quiz.model.Admin;
-import com.quiz.util.DBConnection;
+import model.Admin;
+import util.DBConnection;
 
 public class AdminDao{
     public Admin validateAdmin(String username, String password) {

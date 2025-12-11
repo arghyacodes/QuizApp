@@ -99,7 +99,7 @@ input[type=submit]:hover {
 
 <%
     List<Map<String,Object>> questions = (List<Map<String,Object>>) session.getAttribute("questions");
-    if (questions == null) { response.sendRedirect("User/UserDashboard.jsp"); return; }
+    if (questions == null) { response.sendRedirect("UserDashboard.jsp"); return; }
 %>
 
 <h2>Attempt Quiz</h2>

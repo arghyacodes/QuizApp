@@ -1,7 +1,7 @@
-package com.quiz.controller;
+package controller;
 
-import com.quiz.dao.QuestionDAO;
-import com.quiz.model.Question;
+import dao.QuestionDAO;
+import model.Question;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;

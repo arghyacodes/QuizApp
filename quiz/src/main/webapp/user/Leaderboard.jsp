@@ -1,4 +1,4 @@
-<%@ page import="java.sql.*, com.quiz.util.*" %>
+<%@ page import="java.sql.*, util.*" %>
 <!DOCTYPE html>
 <html>
 <head>

@@ -1,4 +1,4 @@
-package com.quiz.controller;
+package controller;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -9,14 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.quiz.util.DBConnection;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import util.DBConnection;
 
 @WebServlet("/attemptQuiz")
 public class AttemptQuizServlet extends HttpServlet {
@@ -46,7 +45,7 @@ public class AttemptQuizServlet extends HttpServlet {
             session.setAttribute("quizId", quizId);
             session.setAttribute("questions", questions);
 
-            response.sendRedirect(request.getContextPath() +"/User/QuizAttempt.jsp");
+            response.sendRedirect(request.getContextPath() +"/user/QuizAttempt.jsp");
         } catch (Exception e) {
             throw new ServletException(e);
         }

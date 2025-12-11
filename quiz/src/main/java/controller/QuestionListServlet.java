@@ -1,16 +1,16 @@
-package com.quiz.controller;
+package controller;
 
-import com.quiz.dao.QuestionDAO;
-import com.quiz.model.Question;
+import java.io.IOException;
+import java.util.List;
 
+import dao.QuestionDAO;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.List;
+import model.Question;
 
 @WebServlet("/QuestionListServlet")
 public class QuestionListServlet extends HttpServlet {

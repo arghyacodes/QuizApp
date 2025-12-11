@@ -1,8 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.util.List, com.quiz.model.Question" %>
+<%@ page import="java.util.List, model.Question" %>
 
 <%
-    com.quiz.model.Admin admin = (com.quiz.model.Admin) session.getAttribute("admin");
+    model.Admin admin = (model.Admin) session.getAttribute("admin");
     if (admin == null) {
         response.sendRedirect(request.getContextPath() + "/admin/AdminLogin.jsp");
         return;
