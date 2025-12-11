@@ -25,7 +25,7 @@ public class QuestionListServlet extends HttpServlet {
         request.setAttribute("questionList", questionList);
         
         // 3. Forward the request to the JSP view
-        RequestDispatcher dispatcher = request.getRequestDispatcher("admin/QuestionList.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("QuestionList.jsp");
         dispatcher.forward(request, response);
     }
 }

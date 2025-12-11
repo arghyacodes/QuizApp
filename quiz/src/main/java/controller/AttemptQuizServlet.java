@@ -45,7 +45,7 @@ public class AttemptQuizServlet extends HttpServlet {
             session.setAttribute("quizId", quizId);
             session.setAttribute("questions", questions);
 
-            response.sendRedirect(request.getContextPath() +"/user/QuizAttempt.jsp");
+            response.sendRedirect(request.getContextPath() +"/QuizAttempt.jsp");
         } catch (Exception e) {
             throw new ServletException(e);
         }

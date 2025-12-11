@@ -65,6 +65,6 @@ public class SubmitQuizServlet extends HttpServlet {
 
         request.setAttribute("score", correct);
         request.setAttribute("review", review);
-        request.getRequestDispatcher("user/Result.jsp").forward(request, response);
+        request.getRequestDispatcher("Result.jsp").forward(request, response);
     }
 }

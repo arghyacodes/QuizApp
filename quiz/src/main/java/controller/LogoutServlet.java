@@ -13,6 +13,6 @@ public class LogoutServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
         HttpSession session = req.getSession(false);
         if(session != null) session.invalidate();
-        res.sendRedirect(req.getContextPath() +"/admin/AdminLogin.jsp?msg=Logged out successfully.");
+        res.sendRedirect(req.getContextPath() +"/AdminLogin.jsp?msg=Logged out successfully.");
     }
 }

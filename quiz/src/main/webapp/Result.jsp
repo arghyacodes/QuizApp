@@ -106,8 +106,8 @@ a.action-btn:hover {
 </table>
 
 <div style="text-align:center;">
-    <a class="action-btn" href="User/Leaderboard.jsp">View Leaderboard</a>
-    <a class="action-btn" href="User/UserDashboard.jsp">Back to Dashboard</a>
+    <a class="action-btn" href="userLeaderboard.jsp">View Leaderboard</a>
+    <a class="action-btn" href="userDashboard.jsp">Back to Dashboard</a>
 </div>
 
 </body>

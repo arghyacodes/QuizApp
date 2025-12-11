@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Admin;
 
-@WebServlet({"/admin/AdminLoginServlet", "/admin-login"})
+@WebServlet("/quizapp/AdminLoginServlet")
 //@WebServlet("/admin-login")
 public class AdminLoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -26,12 +26,12 @@ public class AdminLoginServlet extends HttpServlet {
         if (admin != null) {
             HttpSession session = req.getSession();
             session.setAttribute("admin", admin);
-            resp.sendRedirect(req.getContextPath() + "/admin/AdminDashboard.jsp");
+            resp.sendRedirect(req.getContextPath() + "/AdminDashboard.jsp");
         } else {
             req.setAttribute("error", "Invalid credentials!");
 //            RequestDispatcher rd = req.getRequestDispatcher("Admin/AdminLogin.jsp");
 //            rd.forward(req, resp);
-            resp.sendRedirect(req.getContextPath()+"/admin/AdminLogin.jsp");
+            resp.sendRedirect(req.getContextPath()+"/AdminLogin.jsp");
         }
     }
 }

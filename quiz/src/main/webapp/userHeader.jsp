@@ -3,9 +3,9 @@
     <div class="brand">Quiz Portal</div>
     <div class="burger" id="burger">&#9776;</div>
     <ul class="nav-links" id="nav-links">
-        <li><a href="<%= request.getContextPath() %>/user/UserDashboard.jsp">Dashboard</a></li>
-        <li><a href="<%= request.getContextPath() %>/user/Leaderboard.jsp">Leaderboard</a></li>
-        <li><a href="<%= request.getContextPath() %>/user/User.jsp">Logout</a></li>
+        <li><a href="<%= request.getContextPath() %>/userDashboard.jsp">Dashboard</a></li>
+        <li><a href="<%= request.getContextPath() %>/userLeaderboard.jsp">Leaderboard</a></li>
+        <li><a href="<%= request.getContextPath() %>/user.jsp">Logout</a></li>
     </ul>
 </div>
 

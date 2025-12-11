@@ -29,9 +29,9 @@ public class AddQuestionServlet extends HttpServlet {
         boolean success = dao.addQuestion(question);
 
         if (success) {
-            resp.sendRedirect("admin/AddQuestion.jsp?success=Question+added+successfully");
+            resp.sendRedirect("AddQuestion.jsp?success=Question+added+successfully");
         } else {
-            resp.sendRedirect("admin/AddQuestion.jsp?error=Failed+to+add+question");
+            resp.sendRedirect("AddQuestion.jsp?error=Failed+to+add+question");
         }
     }
 }

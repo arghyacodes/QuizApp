@@ -22,7 +22,7 @@ public class CreateQuizServlet extends HttpServlet {
 
         if (title == null || title.trim().isEmpty() ||
             category == null || category.trim().isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/admin/createQuiz.jsp?error=InvalidInput");
+            response.sendRedirect(request.getContextPath() + "/createQuiz.jsp?error=InvalidInput");
             return;
         }
 
@@ -58,9 +58,9 @@ public class CreateQuizServlet extends HttpServlet {
 			}
 
             // Redirect to quiz list or quiz detail page
-            response.sendRedirect(request.getContextPath() + "/admin/quizDetail.jsp?quizId=" + quizId);
+            response.sendRedirect(request.getContextPath() + "/quizDetail.jsp?quizId=" + quizId);
         } else {
-            response.sendRedirect(request.getContextPath() + "/admin/createQuiz.jsp?error=DatabaseError");
+            response.sendRedirect(request.getContextPath() + "/createQuiz.jsp?error=DatabaseError");
         }
 
     }

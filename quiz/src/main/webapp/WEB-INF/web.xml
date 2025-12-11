@@ -4,14 +4,4 @@
 	<welcome-file-list>
 	<welcome-file>user/User.jsp</welcome-file>
 	</welcome-file-list>
-
-	<servlet>
-		<servlet-name>AdminLoginServlet</servlet-name>
-		<servlet-class>com.quiz.controller.AdminLoginServlet</servlet-class>
-	</servlet>
-		
-	<servlet-mapping>
-		<servlet-name>AdminLoginServlet</servlet-name>
-		<url-pattern>/admin/login</url-pattern>
-	</servlet-mapping>
 </web-app>
