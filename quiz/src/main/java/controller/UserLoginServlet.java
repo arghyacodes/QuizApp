@@ -38,8 +38,8 @@ public class UserLoginServlet extends HttpServlet {
 
                 if (rs.next()) {
                     // already exists → redirect to login page
-                    response.sendRedirect("/user/User.jsp?msg=User already exists, please login.");
-//                	response.sendRedirect("/user.jsp?msg=User already exists, please login.");
+//                    response.sendRedirect("/user/User.jsp?msg=User already exists, please login.");
+                	response.sendRedirect("/user.jsp?msg=User already exists, please login.");
                 } else {
                     // register user
                     PreparedStatement insertStmt = con.prepareStatement("insert into user(username,password) VALUES(?,?)");
@@ -47,8 +47,8 @@ public class UserLoginServlet extends HttpServlet {
                     insertStmt.setString(2, password);
                     insertStmt.executeUpdate();
 
-                    response.sendRedirect(request.getContextPath() + "/user/User.jsp?msg=Registered successfully! Please login now.");
-//                    response.sendRedirect(request.getContextPath() + "/user.jsp?msg=Registered successfully! Please login now.");
+//                    response.sendRedirect(request.getContextPath() + "/user/User.jsp?msg=Registered successfully! Please login now.");
+                    response.sendRedirect(request.getContextPath() + "/user.jsp?msg=Registered successfully! Please login now.");
                 }
 
             } else if (action.equals("Login")) {
@@ -61,11 +61,11 @@ public class UserLoginServlet extends HttpServlet {
                     // login success
                     HttpSession session = request.getSession();
                     session.setAttribute("username", username);
-                    response.sendRedirect(request.getContextPath() +"/user/UserDashboard.jsp");
-//                    response.sendRedirect(request.getContextPath() +"/userDashboard.jsp");
+//                    response.sendRedirect(request.getContextPath() +"/user/UserDashboard.jsp");
+                    response.sendRedirect(request.getContextPath() +"/userDashboard.jsp");
                 } else {
-                    response.sendRedirect(request.getContextPath() +"/user/User.jsp?msg=Invalid username or password");
-//                	response.sendRedirect(request.getContextPath() +"/user.jsp?msg=Invalid username or password");
+//                    response.sendRedirect(request.getContextPath() +"/user/User.jsp?msg=Invalid username or password");
+                	response.sendRedirect(request.getContextPath() +"/user.jsp?msg=Invalid username or password");
                 }
             }
 
