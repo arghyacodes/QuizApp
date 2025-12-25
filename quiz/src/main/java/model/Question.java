@@ -1,7 +1,9 @@
 package model;
 
 public class Question {
-    private String category;// assuming you'll associate questions with quizzes
+
+    private int id;
+    private String category;
     private String questionText;
     private String optionA;
     private String optionB;
@@ -9,12 +11,15 @@ public class Question {
     private String optionD;
     private String correctOption;
 
-    // Constructors
     public Question() {}
 
-    public Question(String category, String questionText, String optionA, String optionB, String optionC, String optionD, String correctOption) {
-    	this.category = category;
-    	this.questionText = questionText;
+    public Question(String category, String questionText,
+                    String optionA, String optionB,
+                    String optionC, String optionD,
+                    String correctOption) {
+
+        this.category = category;
+        this.questionText = questionText;
         this.optionA = optionA;
         this.optionB = optionB;
         this.optionC = optionC;
@@ -22,15 +27,21 @@ public class Question {
         this.correctOption = correctOption;
     }
 
-    // Getters and Setters
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
-    
-    
+
     public String getQuestionText() { return questionText; }
     public void setQuestionText(String questionText) { this.questionText = questionText; }
-
-
 
     public String getOptionA() { return optionA; }
     public void setOptionA(String optionA) { this.optionA = optionA; }

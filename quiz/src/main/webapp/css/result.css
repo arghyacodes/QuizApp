@@ -1,0 +1,98 @@
+/* ---------- GLOBAL ---------- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    margin: 0;
+    padding: 0;
+    color: #eaf6f6;
+}
+
+/* ---------- SCORE ---------- */
+.score-box {
+    text-align: center;
+    margin: 2.5rem 0 1.5rem;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #eaf6f6;
+}
+
+.score-value {
+    display: inline-block;
+    margin-left: 12px;
+    padding: 0.35rem 1.3rem;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #2bb0a6, #208b83);
+    color: #ffffff;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.35);
+    animation: pop 0.4s ease-out;
+}
+
+@keyframes pop {
+    from { transform: scale(0.85); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+/* ---------- TABLE ---------- */
+table {
+    width: 85%;
+    margin: 2rem auto;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    color: #203a43;
+}
+
+table th, table td {
+    padding: 0.9rem;
+    text-align: center;
+    font-size: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+table th {
+    background: linear-gradient(135deg, #2bb0a6, #208b83);
+    color: #ffffff;
+    font-weight: 700;
+}
+
+/* ---------- ROW STATES ---------- */
+.correct {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.wrong {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* ---------- BUTTONS ---------- */
+.action-btn {
+    display: inline-block;
+    margin: 1.5rem 0.6rem;
+    padding: 0.6rem 1.4rem;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2bb0a6, #208b83);
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 700;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+}
+
+.action-btn:hover {
+    background: linear-gradient(135deg, #208b83, #2bb0a6);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 768px) {
+    table {
+        width: 95%;
+    }
+    .score-box {
+        font-size: 1.8rem;
+    }
+}

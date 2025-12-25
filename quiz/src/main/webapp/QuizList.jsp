@@ -31,30 +31,7 @@
 <head>
 <meta charset="UTF-8">
 <title>All Quizzes</title>
-<style>
-    body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: linear-gradient(135deg,#a1c4fd,#c2e9fb); }
-    h2 { text-align:center; color:#2d3436; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; border-radius:10px; overflow:hidden; box-shadow:0 6px 18px rgba(0,0,0,0.15);}
-    th, td { border: 1px solid #b2bec3; padding: 10px; text-align:left; }
-    th { background: #0984e3; color: #fff; }
-    tr:nth-child(even) { background: #dfe6e9; }
-    tr:hover { background: #74b9ff; color:#fff; transition:0.3s; }
-
-    /* Inner Question Table */
-    .question-table { width: 100%; margin-top: 5px; border-collapse: collapse; }
-    .question-table th, .question-table td { border: 1px solid #b2bec3; padding: 5px; font-size:13px; }
-    .question-table th { background: #00b894; color: #fff; }
-    .question-table tr:nth-child(even) { background: #dff9f0; }
-    .question-table tr:hover { background: #00cec9; color:#fff; }
-
-    /* Pager */
-    .pager, .questionPager { text-align:center; margin-top:15px; }
-    .pager a, .questionPager a { margin: 0 5px; text-decoration:none; color:#0984e3; font-weight:bold; }
-    .pager span, .questionPager span { margin:0 5px; font-weight:bold; color:#d63031; }
-
-    /* Card-like effect for quizzes */
-    td > table { border-radius:8px; overflow:hidden; box-shadow:0 3px 10px rgba(0,0,0,0.1);}
-</style>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/quizlist.css">
 </head>
 <body>
 
@@ -155,6 +132,10 @@
         <span>Next »</span>
     <% } %>
 </div>
-
+<div class="back-wrapper">
+    <a class="back-btn" href="<%=request.getContextPath()%>/AdminDashboard.jsp">
+        Back to Admin Dashboard
+    </a>
+</div>
 </body>
 </html>

@@ -1,0 +1,160 @@
+/* ---------- GLOBAL ---------- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: #203a43;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #eaf6f6;
+    letter-spacing: 1px;
+}
+
+/* ---------- MAIN QUIZ TABLE ---------- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 14px 35px rgba(0,0,0,0.35);
+}
+
+th, td {
+    border-bottom: 1px solid #e0e0e0;
+    padding: 12px;
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+th {
+    background: linear-gradient(135deg, #2bb0a6, #208b83);
+    color: #ffffff;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+tr:nth-child(even) {
+    background: #f7fdfc;
+}
+
+tr:hover {
+    background: #e6f7f4;
+}
+
+/* ---------- INNER QUESTION TABLE ---------- */
+.question-table {
+    width: 100%;
+    margin-top: 8px;
+    border-collapse: collapse;
+    background: #f7fdfc;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+.question-table th,
+.question-table td {
+    border-bottom: 1px solid #d9ece9;
+    padding: 8px;
+    font-size: 0.85rem;
+}
+
+.question-table th {
+    background: linear-gradient(135deg, #444, #222);
+    color: #ffffff;
+}
+
+.question-table tr:nth-child(even) {
+    background: #eef6f5;
+}
+
+.question-table tr:hover {
+    background: #2bb0a6;
+    color: #ffffff;
+}
+
+/* ---------- PAGINATION ---------- */
+.pager,
+.questionPager {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.pager a,
+.questionPager a {
+    display: inline-block;
+    margin: 0 4px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    color: #2bb0a6;
+    border: 1px solid #2bb0a6;
+    transition: background 0.2s, color 0.2s;
+}
+
+.pager a:hover,
+.questionPager a:hover {
+    background: #2bb0a6;
+    color: #ffffff;
+}
+
+.pager span,
+.questionPager span {
+    display: inline-block;
+    margin: 0 4px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 700;
+    background: #2bb0a6;
+    color: #ffffff;
+}
+
+/* ---------- CARD EFFECT FOR NESTED TABLE ---------- */
+td > table {
+    border-radius: 10px;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    table, .question-table {
+        font-size: 0.85rem;
+    }
+
+    th, td {
+        padding: 8px;
+    }
+}
+/* ---------- BACK BUTTON ---------- */
+.back-wrapper {
+    margin: 30px 0;
+    text-align: center;
+}
+
+.back-btn {
+    display: inline-block;
+    padding: 0.6rem 1.6rem;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #444, #222);
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.back-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+}

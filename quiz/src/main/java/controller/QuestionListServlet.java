@@ -14,18 +14,17 @@ import model.Question;
 
 @WebServlet("/QuestionListServlet")
 public class QuestionListServlet extends HttpServlet {
-    
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        
-        // 1. Get the data from the DAO
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
         QuestionDAO dao = new QuestionDAO();
         List<Question> questionList = dao.getAllQuestions();
-        
-        // 2. Set the data as an attribute for the JSP
+
         request.setAttribute("questionList", questionList);
-        
-        // 3. Forward the request to the JSP view
-        RequestDispatcher dispatcher = request.getRequestDispatcher("QuestionList.jsp");
-        dispatcher.forward(request, response);
+
+        RequestDispatcher rd = request.getRequestDispatcher("/QuestionList.jsp");
+        rd.forward(request, response);
     }
 }

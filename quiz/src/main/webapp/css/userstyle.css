@@ -1,0 +1,119 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+h2 {
+    color: #eaf6f6;
+    margin-top: 2rem;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.welcome-card {
+    background-color: #ffffff;
+    border-radius: 14px;
+    padding: 2.2rem;
+    max-width: 460px;
+    width: 90%;
+    margin-top: 2rem;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+    text-align: center;
+}
+
+.welcome-card h3 {
+    color: #203a43;
+}
+
+.welcome-card p {
+    color: #555;
+}
+
+.welcome-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    border: 3px solid #2bb0a6;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+form label {
+    font-weight: 600;
+    margin-top: 0.6rem;
+    color: #203a43;
+}
+
+form input[type=text],
+form input[type=password] {
+    width: 100%;
+    padding: 0.65rem;
+    margin: 0.3rem 0 1rem 0;
+    border: 1px solid #bbb;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+form input[type=text]:focus,
+form input[type=password]:focus {
+    border-color: #2bb0a6;
+    box-shadow: 0 0 0 2px rgba(43,176,166,0.2);
+    outline: none;
+}
+
+form input[type=submit] {
+    background-color: #2bb0a6;
+    color: white;
+    border: none;
+    padding: 0.65rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+form input[type=submit]:hover {
+    background-color: #208b83;
+    transform: translateY(-1px);
+}
+
+.message {
+    text-align: center;
+    margin-top: 1rem;
+    color: #0f5132;
+    background-color: #d1e7dd;
+    padding: 0.6rem;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.admin-btn {
+    margin-top: 1rem;
+    background-color: #444;
+    color: white;
+    border: none;
+    padding: 0.6rem;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.admin-btn:hover {
+    background-color: #000;
+}
+

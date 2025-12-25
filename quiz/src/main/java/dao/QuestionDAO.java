@@ -45,6 +45,7 @@ public class QuestionDAO {
 
             while (rs.next()) {
                 Question q = new Question();
+                q.setId(rs.getInt("id")); // IMPORTANT
                 q.setCategory(rs.getString("category"));
                 q.setQuestionText(rs.getString("questionText"));
                 q.setOptionA(rs.getString("optionA"));
@@ -60,6 +61,19 @@ public class QuestionDAO {
         }
 
         return questions;
+    }
+
+    public void deleteQuestion(int id) {
+        String sql = "DELETE FROM question WHERE id=?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

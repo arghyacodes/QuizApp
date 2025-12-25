@@ -1,0 +1,84 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* CARD */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #ffffff;
+    padding: 45px 55px;
+    border-radius: 22px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+    animation: fadeIn 0.7s ease-in-out;
+    text-align: center;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(25px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* TEXT */
+.text {
+    font-size: 36px;
+    font-weight: 700;
+    color: #203a43;
+    margin-bottom: 20px;
+}
+
+/* IMAGE */
+.image img {
+    width: 110px;
+    margin-bottom: 25px;
+}
+
+/* BUTTON */
+.back-btn {
+    display: inline-block;
+    padding: 0.7rem 1.8rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #2bb0a6, #208b83);
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+}
+
+.back-btn:hover {
+    background: linear-gradient(135deg, #208b83, #2bb0a6);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(0,0,0,0.3);
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+    .container {
+        padding: 30px 28px;
+    }
+
+    .text {
+        font-size: 28px;
+    }
+
+    .image img {
+        width: 90px;
+    }
+}
+/* SECONDARY BUTTON */
+.back-btn.secondary {
+    margin-top: 12px;
+    background: linear-gradient(135deg, #444, #222);
+}
+
+.back-btn.secondary:hover {
+    background: linear-gradient(135deg, #222, #000);
+}
